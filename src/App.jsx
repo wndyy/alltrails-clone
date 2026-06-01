@@ -12,24 +12,48 @@ export default function App() {
   const map = useRef(null)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
+  const [showTrails, setShowTrails] = useState(true)
+  const [showTrails, setShowTrails] = useState(true)
 
-  useEffect(() => {
-    if (map.current) return
+useEffect(() => {
+  if (map.current) return
+  map.current = new maplibregl.Map({
+    container: mapContainer.current,
+    style: STADIA_STYLE,
+    center: DEFAULT_CENTER,
+    zoom: DEFAULT_ZOOM,
+  })
+  map.current.addControl(new maplibregl.NavigationControl(), 'bottom-right')
 
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: STADIA_STYLE,
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
+  map.current.on('load', () => {
+    map.current.addSource('trails', {
+      type: 'raster',
+      tiles: ['https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '© <a href="https://waymarkedtrails.org">Waymarked Trails</a>',
     })
+    map.current.addLayer({
+      id: 'trails',
+      type: 'raster',
+      source: 'trails',
+      paint: { 'raster-opacity': 0.85 },
+    })
+  })
 
-    map.current.addControl(new maplibregl.NavigationControl(), 'bottom-right')
-
-    return () => {
-      map.current?.remove()
-      map.current = null
-    }
+  return () => {
+    map.current?.remove()
+    map.current = null
+  }
   }, [])
+
+useEffect(() => {
+  if (!map.current) return
+  const style = map.current.getStyle()
+  if (!style) return
+  const layerExists = style.layers?.some(l => l.id === 'trails')
+  if (!layerExists) return
+  map.current.setLayoutProperty('trails', 'visibility', showTrails ? 'visible' : 'none')
+}, [showTrails])
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
@@ -93,6 +117,18 @@ export default function App() {
 
         {error && <div className="error-toast">{error}</div>}
       </div>
+      <div className="trails-toggle">
+      <button
+        className={`trails-btn ${showTrails ? 'active' : ''}`}
+        onClick={() => setShowTrails(v => !v)}
+        title="Toggle hiking trails"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 17l4-8 4 4 4-6 4 10"/>
+        </svg>
+        {showTrails ? 'Hide Trails' : 'Show Trails'}
+      </button>
+    </div>
     </div>
   )
 }
