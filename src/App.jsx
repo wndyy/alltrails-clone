@@ -13,7 +13,6 @@ export default function App() {
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
   const [showTrails, setShowTrails] = useState(true)
-  const [showTrails, setShowTrails] = useState(true)
 
 useEffect(() => {
   if (map.current) return
