@@ -3,7 +3,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './App.css'
 
-const STADIA_STYLE = 'https://tiles.openfreemap.org/styles/bright'
+const STADIA_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 const DEFAULT_CENTER = [-98.5795, 39.8283] // geographic center of USA
 const DEFAULT_ZOOM = 4
 
